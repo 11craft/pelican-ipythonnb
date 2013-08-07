@@ -1,15 +1,15 @@
-from pelican import signals
-from pelican.readers import EXTENSIONS, Reader
+from pelican.readers import BaseReader
  
 try:
     import json
     import IPython
     from datetime import datetime
     from nbconverter.html import ConverterHTML
-except:
+except ImportError:
     IPython = False
- 
-class iPythonNB(Reader):
+
+
+class iPythonNB(BaseReader):
     enabled = True
     file_extensions = ['ipynb']
 
@@ -49,11 +49,7 @@ class iPythonNB(Reader):
         for h in '123456':
           content = content.replace('<h%s' % h, '<h%s class="ipynb"' % h)
         return content, metadata
- 
- 
-def add_reader(arg):
-    EXTENSIONS['ipynb'] = iPythonNB
- 
- 
+
+
 def register():
-    signals.initialized.connect(add_reader)
+    pass
