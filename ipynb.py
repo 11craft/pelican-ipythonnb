@@ -179,10 +179,12 @@ class IPythonNB(BaseReader):
         parser.feed(content)
         parser.close()
         body = parser.body
-        summary = parser.summary
-        summary = clean_summary(summary)
 
-        metadata['summary'] = summary
+        # Generate summary from notebook if not provided in metadata.
+        if 'summary' not in metadata or not metadata['summary']:
+            summary = parser.summary
+            summary = clean_summary(summary)
+            metadata['summary'] = summary
 
         # Remove some CSS styles, so it doesn't break the themes.
         def filter_tags(style_text):
