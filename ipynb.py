@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import os
 import json
 import logging
+import re
 
 import markdown
 
@@ -179,6 +180,7 @@ class IPythonNB(BaseReader):
         parser.close()
         body = parser.body
         summary = parser.summary
+        summary = clean_summary(summary)
 
         metadata['summary'] = summary
 
@@ -277,3 +279,23 @@ def custom_highlighter(source, language='ipython', metadata=None):
     output = _pygments_highlight(source, formatter, language, metadata)
     output = output.replace('<pre>', '<pre class="ipynb">')
     return output
+
+
+def clean_summary(summary):
+    """
+    Removes artifacts left over from summary creation.
+    """
+
+    html_start = '<html><body>'
+    code_cell_start = '<div class="cell border-box-sizing code_cell rendered">\n<div class="input">'
+    anchor_link_re = re.compile(r'<a class="anchor-link" href="#.*">¶</a>')
+
+    if summary.startswith(html_start):
+        summary = summary[len(html_start):]
+
+    if summary.endswith(code_cell_start):
+        summary = summary[:-len(code_cell_start)]
+
+    summary = anchor_link_re.sub('', summary)
+
+    return summary
